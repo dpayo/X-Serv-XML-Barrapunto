@@ -14,9 +14,10 @@
 from xml.sax.handler import ContentHandler
 from xml.sax import make_parser
 import sys
+import urllib
 
 class myContentHandler(ContentHandler):
-    
+
     def __init__ (self):
         self.inItem = False
         self.inContent = False
@@ -30,35 +31,35 @@ class myContentHandler(ContentHandler):
                 self.inContent = True
             elif name == 'link':
                 self.inContent = True
-            
+
     def endElement (self, name):
-       
+
         if name == 'item':
             self.inItem = False
         elif self.inItem:
             if name == 'title':
                 line = "Title: " + self.theContent + "."
                 # To avoid Unicode trouble
-                self.htmlFile.write(line.encode('utf-8')) 
+                self.htmlFile.write(line.encode('utf-8'))
                 self.inContent = False
                 self.theContent = ""
             elif name == 'link':
-                self.htmlFile.write( "<a href =" + self.theContent + ">Link</a>")
+
+                self.htmlFile.write( "<a href =" + self.theContent + ">Link</a> <br/>")
                 self.inContent = False
                 self.theContent = ""
-
     def characters (self, chars):
         if self.inContent:
             self.theContent = self.theContent + chars
-            
+
 # --- Main prog
 
-if len(sys.argv)<2:
-    print "Usage: python xml-parser-barrapunto.py <document>"
-    print
-    print " <document>: file name of the document to parse"
-    sys.exit(1)
-    
+#if len(sys.argv)<2:
+#    print "Usage: python xml-parser-barrapunto.py <document>"
+#    print
+#    print " <document>: file name of the document to parse"
+#    sys.exit(1)
+
 # Load parser and driver
 
 theParser = make_parser()
@@ -67,8 +68,9 @@ theParser.setContentHandler(theHandler)
 
 # Ready, set, go!
 
-xmlFile = open(sys.argv[1],"r")
-theParser.parse(xmlFile)
+#xmlFile = open(sys.argv[1],"r")
+file = urllib.urlopen( 'http://barrapunto.com/index.rss')
+theParser.parse(file)
 
 
 print "Parse complete"
